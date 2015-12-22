@@ -12,6 +12,13 @@ class UnresolvedLeapError(Exception):
         Exception.__init__(self, self.message)
 
 
+class UnresolvedLeadingToneError(Exception):
+    def __init__(self, index):
+        self.message = "Found unresolved leading tone at index " + str(index)
+        self.index = index
+        Exception.__init__(self, self.message)
+
+
 class UnresolvedSeventhError(Exception):
     def __init__(self, index, voice_id=None):
         self.message = "Found unresolved seventh at index " + str(index)

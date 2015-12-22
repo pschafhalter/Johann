@@ -30,9 +30,12 @@ def resolves(voice, resolve_interval):
     first_note = voice[0]
     make_test_interval = lambda x: interval.notesToGeneric(first_note, x)
     for test_interval in map(make_test_interval, voice[1:]):
-        if test_interval.directed == resolve_interval:
-            return True
-        return False
+        if not test_interval.directed == 1:
+            if test_interval.directed == resolve_interval:
+                return True
+            else:
+                return False
+    return True
 
 
 

@@ -10,6 +10,7 @@ def check_chorale(chorale, print_result=True):
     tenor = chorale.getElementById("tenor")
     bass = chorale.getElementById("bass")
     voices = [bass, tenor, alto, soprano]
+    chorale_key = chorale.analyze("key")
 
     for voice in voices:
         try:
@@ -25,6 +26,13 @@ def check_chorale(chorale, print_result=True):
     except UnresolvedSeventhError as e:
         num_errors += 1
         print(e.voice_id + ":", e.message)
+    
+    for voice in [bass, soprano]:
+        try:
+            check_unresolved_leading_tones(voice, chorale_key)
+        except UnresolvedLeadingToneError as e:
+            num_errors += 1
+            print(voice.id + ":", e.message)
 
     for pair in zip(voices[:-1], voices[1:]):
         try:
@@ -109,6 +117,12 @@ def check_unresolved_leaps(voice):
         previous_note = current_note
 
 
+def check_unresolved_leading_tones(voice, chorale_key):
+    for i, current_note in enumerate(voice):
+        if current_note.pitch == chorale_key.getLeadingTone() and not helpers.resolves(voice[i:], 2):
+            raise UnresolvedLeadingToneError(i)
+
+
 def check_unresolved_sevenths(voices):
     if len(voices) < 2:
         return
@@ -117,9 +131,8 @@ def check_unresolved_sevenths(voices):
     for i, current_chord in enumerate(chords):
         if current_chord.seventh:
             for voice in voices:
-                if current_chord.seventh == voice[i]:
-                    if not helpers.resolves(voice, -2):
-                        raise UnresolvedSeventhError(i, voice.id)
+                if current_chord.seventh == voice[i].pitch and not helpers.resolves(voice[i:], -2):
+                    raise UnresolvedSeventhError(i, voice.id)
 
 
 def check_spacing(lower_voice, upper_voice):
