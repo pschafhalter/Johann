@@ -11,6 +11,14 @@ class UnresolvedLeapError(Exception):
         self.index = index
         Exception.__init__(self, self.message)
 
+
+class UnresolvedSeventhError(Exception):
+    def __init__(self, index, voice_id=None):
+        self.message = "Found unresolved seventh at index " + str(index)
+        self.voice_id = voice_id
+        self.index = index
+        Exception.__init__(self, self.message)
+
 class SpacingError(Exception):
     def __init__(self, index):
         self.message = "Found spacing error at index " + str(index)

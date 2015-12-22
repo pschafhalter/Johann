@@ -1,9 +1,9 @@
-from music21 import interval
+from music21 import interval, chord
 from .errors import *
 from . import helpers
 
 
-def check_chorale(chorale):
+def check_chorale(chorale, print_result=True):
     num_errors = 0
     soprano = chorale.getElementById("soprano")
     alto = chorale.getElementById("alto")
@@ -19,6 +19,12 @@ def check_chorale(chorale):
         except (AugmentedSecondError, UnresolvedLeapError) as e:
             num_errors += 1
             print(voice.id + ":", e.message)
+
+    try:
+        check_unresolved_sevenths(voices)
+    except UnresolvedSeventhError as e:
+        num_errors += 1
+        print(e.voice_id + ":", e.message)
 
     for pair in zip(voices[:-1], voices[1:]):
         try:
@@ -46,10 +52,11 @@ def check_chorale(chorale):
         num_errors += 1
         print("%s & %s:" % (bass.id, soprano.id), e.message)
 
-    if num_errors == 0:
-        print("Check completed.\n Result: no errors!")
-    else:
-        print("Check completed.\nResult: %d errors" % num_errors)
+    if print_result:
+        if num_errors == 0:
+            print("Check completed\n Result: no errors!")
+        else:
+            print("Check completed\nResult: %d errors" % num_errors)
 
 
 def check_augmented_seconds(voice):
@@ -88,7 +95,9 @@ def check_unresolved_leaps(voice):
     """
     previous_note, must_resolve = None, 0
     for i, current_note in enumerate(voice):
-        if must_resolve:
+        if previous_note == current_note:
+            pass
+        elif must_resolve:
             test_interval = interval.notesToGeneric(previous_note, current_note)
             if test_interval.directed != must_resolve:
                 raise UnresolvedLeapError(i)
@@ -98,6 +107,20 @@ def check_unresolved_leaps(voice):
             if test_interval.undirected >= 4:
                 must_resolve = -2*test_interval.directed//test_interval.undirected
         previous_note = current_note
+
+
+def check_unresolved_sevenths(voices):
+    if len(voices) < 2:
+        return
+
+    chords = [chord.Chord([voice[k] for voice in voices]) for k in range(len(voices[0]))]
+    for i, current_chord in enumerate(chords):
+        if current_chord.seventh:
+            for voice in voices:
+                if current_chord.seventh == voice[i]:
+                    if not helpers.resolves(voice, -2):
+                        raise UnresolvedSeventhError(i, voice.id)
+
 
 def check_spacing(lower_voice, upper_voice):
     """Raises an error if the interval between two voices exceeds an octave.
