@@ -61,10 +61,7 @@ def check_chorale(chorale, print_result=True):
         print("%s & %s:" % (bass.id, soprano.id), e.message)
 
     if print_result:
-        if num_errors == 0:
-            print("Check completed\n Result: no errors!")
-        else:
-            print("Check completed\nResult: %d errors" % num_errors)
+            print("Check completed\n Result: %d errors" % num_errors)
 
 
 def check_augmented_seconds(voice):
