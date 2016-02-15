@@ -18,13 +18,22 @@ class ChordWalker:
         the list of expected chords
         """
         assert len(expected_chords) > 0, "No expected chords given"
-        
-    def get_expected_next(self, chord_label):
-        """Returns a list of gramatically correct next chords
-        given a chord label
-        """
-        if is_predominant(chord_label, self.key.type == "major"):
-            pass
+
+
+def get_expected_next(chord_label, major_key = True):
+    """Returns a list of gramatically correct next chords
+    given a chord label
+    """
+    if is_tonic(chord_label, major_key):
+        return get_dominant_nexts(chord_label, major_key)
+
+    if is_dominant(chord_label, major_key):
+        return get_dominant_nexts(chord_label, major_key)
+
+    if is_predominant(chord_label, major_key):
+        return get_predominant_nexts(chord_label, major_key)
+
+    return []
 
 
 def get_inversions(parent_chord, inversions):
@@ -35,7 +44,7 @@ def get_inversions(parent_chord, inversions):
         inverted_chords = [parent_chord, c + "65", c + "43", c + "42"]
     else:
         inverted_chords = [parent_chord, parent_chord + "6", parent_chord + "64"]
-    
+
     return [inverted_chords[i] for i in inversions]
 
 
@@ -44,7 +53,7 @@ def is_seven_chord(chord_label):
         if inversion in chord_label:
             return True
     return False
-    
+
 
 def get_tonics(major_key = True):
     if major_key:
