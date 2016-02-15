@@ -1,4 +1,7 @@
 from music21 import roman, key, chord
+from .errors import *
+
+# TODO: fix 7 chords--investivate music21 labeling (e.g. viio#63)
 # TODO: better handling of getting nexts of a 7 chord
 
 
@@ -13,11 +16,33 @@ class ChordWalker:
         self.labeled_chords = []
         self.index = 0
 
-    def find_next(self, expected_chords):
+    def __next__(self):
+        current_rn = roman.romanNumeralFromChord(self.chords[self.index], self.key)
+        self.labeled_chords.append(current_rn.figure)
+        new_index = self.find_next()
+        if new_index != self.index + 1:
+            raise ChordProgressionError(self.index)
+        self.index = new_index
+            
+
+    def find_next(self):
         """Returns the index and chord of the next chord in
         the list of expected chords
         """
-        assert len(expected_chords) > 0, "No expected chords given"
+        assert self.index + 1 < len(self.chords), "No more chords to walk"
+        current_chord = self.chords[self.index]
+        current_rn = roman.romanNumeralFromChord(current_chord, self.key)
+        expected_chord_labels = get_expected_next(current_rn.figure, self.key.type == "major")
+        assert len(expected_chord_labels) > 0, "No expected chords given"
+        for i, c in enumerate(self.chords[self.index + 1:]):
+            rn = roman.romanNumeralFromChord(c, self.key)
+            if rn.figure in expected_chord_labels:
+                return self.index + i + 1
+
+    def get_naive_chord_label(self, index):
+        chord = self.chords[index]
+        rn = roman.romanNumeralFromChord(chord, self.key)
+        return rn.figure
 
 
 def get_expected_next(chord_label, major_key = True):
@@ -25,7 +50,7 @@ def get_expected_next(chord_label, major_key = True):
     given a chord label
     """
     if is_tonic(chord_label, major_key):
-        return get_dominant_nexts(chord_label, major_key)
+        return get_tonic_nexts(chord_label, major_key)
 
     if is_dominant(chord_label, major_key):
         return get_dominant_nexts(chord_label, major_key)
@@ -91,7 +116,7 @@ def get_dominant_nexts(chord_label, major_key = True):
     result = []
     # TODO: Check if i64 -> iii6 is legal
     if chord_label.lower() == "i64" or chord_label == "iii6":
-        return chord_label + ["V"]
+        return [chord_label, "V"]
     # Reality is a bit more subtle, but we'll use this catch-all for now
     # TODO: better handling of viio6 and viio7
     result += get_tonics(major_key)
