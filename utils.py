@@ -68,9 +68,15 @@ def check_chorale_errors(chorale):
     voice_leading.error_checks.check_chorale(chorale, False)
 
 
-def print_chords(chorale):
+def get_chords(chorale):
     chorale_key = chorale.analyze("key")
     chord_list = filter(lambda x: type(x) is chord.Chord, chorale.chordify().recurse())
+    return list(chord_list)
+
+
+def print_chords(chorale):
+    chorale_key = chorale.analyze("key")
+    chord_list = get_chords(chorale)
     for c in chord_list:
         rn = roman.romanNumeralFromChord(c, chorale_key)
         print(rn.figure)
