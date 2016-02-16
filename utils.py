@@ -1,5 +1,6 @@
 from music21 import note, stream, chord, roman, pitch
 import voice_leading.error_checks
+import harmony.error_checks
 
 
 def live_check_chorale(chorale=None):
@@ -66,6 +67,7 @@ def write_part(length):
 
 def check_chorale_errors(chorale):
     voice_leading.error_checks.check_chorale(chorale, False)
+    harmony.error_checks.check_chorale(chorale, False)
 
 
 def get_chords(chorale):
