@@ -21,7 +21,7 @@ class ChordWalker:
         self.labeled_chords.append(current_rn.figure)
         new_index = self.find_next()
         if new_index != self.index + 1:
-            raise ChordProgressionError(self.index)
+            raise ChordProgressionError(self.index - 1)
         self.index = new_index
             
 
@@ -189,4 +189,11 @@ def get_predominant_nexts(chord_label, major_key = True):
 
 def is_predominant(chord_label, major_key = True):
     return chord_label in get_predominants(major_key)
+
+
+def get_chords(chorale):
+    chorale_key = chorale.analyze("key")
+    chord_list = filter(lambda x: type(x) is chord.Chord, chorale.chordify().recurse())
+    return list(chord_list)
+
 
