@@ -1,7 +1,7 @@
 from music21 import interval
 
 
-def is_lower_note(first_note, second_note):
+def is_lower_note(expected_lower, expected_upper):
     """Given two notes, returns whether the first note is lower or equal to the second note.
 
     >>> from music21 import note
@@ -10,7 +10,7 @@ def is_lower_note(first_note, second_note):
     >>> is_lower_note(note.Note('C3'), note.Note('B2'))
     False
     """
-    return interval.getAbsoluteLowerNote(first_note, second_note) is first_note
+    return interval.getAbsoluteLowerNote(expected_lower, expected_upper) is expected_lower
 
 
 def resolves(voice, resolve_interval):
@@ -27,14 +27,16 @@ def resolves(voice, resolve_interval):
     """
     if len(voice) < 2:
         return True
+
     first_note = voice[0]
-    make_test_interval = lambda x: interval.notesToGeneric(first_note, x)
-    for test_interval in map(make_test_interval, voice[1:]):
-        if not test_interval.directed == 1:
-            if test_interval.directed == resolve_interval:
-                return True
-            else:
-                return False
+    for note in voice[1:]:
+        current_interval = interval.notesToInterval(first_note, note)
+        if current_interval.generic.directed == resolve_interval:
+            return True
+        # returns false if the resolve interval is wrong or there a chromatic step in the wrong direction
+        if current_interval.generic.directed != 1 or resolve_interval * current_interval.chromatic.directed < 0:
+            return
+
     return True
 
 

@@ -1,0 +1,4 @@
+b4  b4  b-4  a4   d5   d5   c#5  d5
+e4  e4  e4   f#4  f#4  f#4  e4   f#4
+g3  g3  g3   f#3  a3   a3   a3   a3
+e3  d3  c#3  d3   d3   a2   a2   d3

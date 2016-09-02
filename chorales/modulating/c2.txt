@@ -1,0 +1,4 @@
+c5   a-4  b-4  c5   d-5  e-5  e-5  d-5  c5
+a-4  a-4  f4   a-4  a-4  g4   e-4  g4   a-4
+c4   c4   d-4  c4   a-3  b-3  a-3  b-3  a-3
+f3   f3   f3   f3   f3   e-3  c3   e-3  a-2

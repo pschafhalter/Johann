@@ -82,7 +82,7 @@ def print_chords(chorale):
     for c in chord_list:
         rn = roman.romanNumeralFromChord(c, chorale_key)
         print(rn.figure)
-        
+
 
 def make_chorale(soprano, alto, tenor, bass):
     """Given 4 voices, constructs a chorale
@@ -98,6 +98,8 @@ def make_chorale(soprano, alto, tenor, bass):
 def make_chorale_from_strings(soprano, alto, tenor, bass):
     """Constructs a chorale given string lists of notes
     """
+    assert len(soprano) == len(alto) == len(tenor) == len(bass), "Voices must have same length"
+
     soprano = make_part(map(note.Note, soprano))
     alto = make_part(map(note.Note, alto))
     tenor = make_part(map(note.Note, tenor))
@@ -125,6 +127,5 @@ def read_chorale(filename):
     a = f.readline().split()
     t = f.readline().split()
     b = f.readline().split()
-    
-    return make_chorale_from_strings(s, a, t, b)
 
+    return make_chorale_from_strings(s, a, t, b)

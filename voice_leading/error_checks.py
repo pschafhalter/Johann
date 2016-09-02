@@ -26,7 +26,7 @@ def check_chorale(chorale, print_result=True):
     except UnresolvedSeventhError as e:
         num_errors += 1
         print(e.voice_id + ":", e.message)
-    
+
     for voice in [bass, soprano]:
         try:
             check_unresolved_leading_tones(voice, chorale_key)
@@ -121,11 +121,12 @@ def check_unresolved_leading_tones(voice, chorale_key):
 
 
 def check_unresolved_sevenths(voices):
+    # TODO: check doubled sevenths
     if len(voices) < 2:
         return
 
-    chords = [chord.Chord([voice[k] for voice in voices]) for k in range(len(voices[0]))]
-    for i, current_chord in enumerate(chords):
+    for i in range(len(voices[0])):
+        current_chord = chord.Chord([voice[i] for voice in voices])
         if current_chord.seventh:
             for voice in voices:
                 if current_chord.seventh == voice[i].pitch and not helpers.resolves(voice[i:], -2):
@@ -227,6 +228,7 @@ def check_parallel_fifths(lower_voice, upper_voice):
     errors.ParallelFifthsError: Found parallel fifths at index 2
     >>> check_parallel_fifths(bass, alto)
     """
+    # TODO: might want to rename p5 -> fifth
     was_p5 = False
     for i, (lower_note, upper_note) in enumerate(zip(lower_voice, upper_voice)):
         is_p5 = helpers.is_perfect_fifth(lower_note, upper_note)
@@ -269,14 +271,15 @@ def check_direct_fifths(bass, soprano):
     >>> soprano = stream.Part(map(note.Note, ['C5', 'D5', 'E5']))
     >>> check_direct_fifths(bass, soprano)
     """
-    if len(bass) <= 1:
+    if len(soprano) <= 1:
         return
+
     for i, (bass_note, soprano_note) in enumerate(zip(bass, soprano)):
         is_p5 = helpers.is_perfect_fifth(bass_note, soprano_note)
         if is_p5 and i > 0:
-            bass_motion = interval.notesToGeneric(bass[i-1], bass_note).directed
-            soprano_motion = interval.notesToGeneric(soprano[i-1], soprano_note).directed
-            if soprano_motion * bass_motion > 0 and abs(soprano_motion) > 2:
+            bass_interval = interval.notesToGeneric(bass[i-1], bass_note).directed
+            soprano_interval = interval.notesToGeneric(soprano[i-1], soprano_note).directed
+            if soprano_interval * bass_interval > 0 and abs(soprano_interval) > 2:
                 raise DirectFifthsError(i)
 
 
@@ -298,7 +301,7 @@ def check_direct_octaves(bass, soprano):
     for i, (bass_note, soprano_note) in enumerate(zip(bass, soprano)):
         is_p8 = helpers.is_perfect_octave(bass_note, soprano_note)
         if is_p8 and i > 0:
-            bass_motion = interval.notesToGeneric(bass[i-1], bass_note).directed
-            soprano_motion = interval.notesToGeneric(soprano[i-1], soprano_note).directed
-            if soprano_motion * bass_motion > 0 and abs(soprano_motion) > 2:
+            bass_interval = interval.notesToGeneric(bass[i-1], bass_note).directed
+            soprano_interval = interval.notesToGeneric(soprano[i-1], soprano_note).directed
+            if soprano_interval * bass_interval > 0 and abs(soprano_interval) > 2:
                 raise DirectOctavesError(i)
